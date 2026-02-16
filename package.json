@@ -1,5 +1,5 @@
 {
-  "name": "raspberry_pi_nas_ui",
+  "name": "nas-ui-raspberry-pi",
   "version": "0.0.0",
   "private": true,
   "type": "module",
