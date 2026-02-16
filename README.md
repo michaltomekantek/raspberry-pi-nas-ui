@@ -1,4 +1,4 @@
-# nas-ui-raspberry-pi
+# raspberry-pi-nas-ui
 
 Nowoczesny interfejs użytkownika do zarządzania serwerem Raspberry Pi NAS.
 
