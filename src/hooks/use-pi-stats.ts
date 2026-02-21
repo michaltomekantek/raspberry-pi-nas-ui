@@ -1,38 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-export interface PiStats {
-  temp: number;
-  cpuUsage: number;
-  ramUsage: number;
-  diskFree: string;
-  diskTotal: string;
-  uptime: string;
-  ipAddress: string;
+export interface DiskInfo {
+  partition: string;
+  mountpoint: string;
+  total_gb: number;
+  used_gb: number;
+  percent_used: string;
+  temp: string;
 }
 
+export interface PiStatsResponse {
+  system: {
+    uptime: string;
+    cpu_temp: string;
+    ram_percent: string;
+  };
+  disks: DiskInfo[];
+}
+
+const API_URL = "http://michal-pi400.local:5000/system/stats";
+
 export const usePiStats = () => {
-  const [stats, setStats] = useState<PiStats>({
-    temp: 45,
-    cpuUsage: 12,
-    ramUsage: 35,
-    diskFree: "24.5 GB",
-    diskTotal: "64 GB",
-    uptime: "12 dni, 4h 20m",
-    ipAddress: "192.168.1.15"
+  return useQuery<PiStatsResponse>({
+    queryKey: ['pi-stats'],
+    queryFn: async () => {
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error('Błąd podczas pobierania danych z serwera');
+      }
+      return response.json();
+    },
+    refetchInterval: 10000, // Automatyczne odświeżanie co 10 sekund
   });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setStats(prev => ({
-        ...prev,
-        temp: Math.floor(40 + Math.random() * 15),
-        cpuUsage: Math.floor(5 + Math.random() * 40),
-        ramUsage: Math.floor(30 + Math.random() * 10),
-      }));
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return stats;
 };

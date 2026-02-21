@@ -1,11 +1,40 @@
-import { Thermometer, Cpu, HardDrive, Activity, Globe, Clock } from "lucide-react";
+import { Thermometer, Cpu, Activity, Globe, Clock, RefreshCw, AlertCircle } from "lucide-react";
 import { usePiStats } from "@/hooks/use-pi-stats";
 import StatCard from "@/components/StatCard";
+import DiskCard from "@/components/DiskCard";
 import SystemControls from "@/components/SystemControls";
 import { MadeWithDyad } from "@/components/made-with-dyad";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { showSuccess, showError } from "@/utils/toast";
 
 const Index = () => {
-  const stats = usePiStats();
+  const { data, isLoading, isError, refetch, isFetching } = usePiStats();
+
+  const handleRefresh = async () => {
+    try {
+      await refetch();
+      showSuccess("Dane zostały zaktualizowane");
+    } catch (err) {
+      showError("Nie udało się pobrać danych");
+    }
+  };
+
+  if (isError) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-4">
+        <AlertCircle className="w-12 h-12 text-red-500" />
+        <h2 className="text-xl font-bold">Błąd połączenia z serwerem</h2>
+        <p className="text-muted-foreground text-center max-w-md">
+          Upewnij się, że serwer pod adresem michal-pi400.local:5000 jest uruchomiony i dostępny w Twojej sieci.
+        </p>
+        <Button onClick={() => handleRefresh()}>Spróbuj ponownie</Button>
+      </div>
+    );
+  }
+
+  const stats = data?.system;
+  const disks = data?.disks || [];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-4 md:p-8">
@@ -20,51 +49,81 @@ const Index = () => {
               Monitorowanie i zarządzanie Twoim serwerem w czasie rzeczywistym.
             </p>
           </div>
-          <div className="flex items-center gap-4 bg-white dark:bg-gray-900 p-3 rounded-xl shadow-sm">
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Globe className="w-4 h-4 text-blue-500" />
-              {stats.ipAddress}
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-4 bg-white dark:bg-gray-900 p-3 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Globe className="w-4 h-4 text-blue-500" />
+                michal-pi400.local
+              </div>
+              <div className="w-px h-4 bg-gray-200 dark:bg-gray-800" />
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Clock className="w-4 h-4 text-orange-500" />
+                {isLoading ? "..." : stats?.uptime}
+              </div>
             </div>
-            <div className="w-px h-4 bg-gray-200 dark:bg-gray-800" />
-            <div className="flex items-center gap-2 text-sm font-medium">
-              <Clock className="w-4 h-4 text-orange-500" />
-              {stats.uptime}
-            </div>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="rounded-xl bg-white dark:bg-gray-900 shadow-sm"
+              onClick={handleRefresh}
+              disabled={isFetching}
+            >
+              <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
         </header>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Temperatura"
-            value={stats.temp}
-            unit="°C"
-            icon={<Thermometer className="w-5 h-5 text-orange-600" />}
-            progress={Math.min(100, (stats.temp / 85) * 100)}
-            color="bg-orange-100 dark:bg-orange-900/30"
-          />
-          <StatCard
-            title="Zużycie CPU"
-            value={stats.cpuUsage}
-            unit="%"
-            icon={<Cpu className="w-5 h-5 text-blue-600" />}
-            progress={stats.cpuUsage}
-            color="bg-blue-100 dark:bg-blue-900/30"
-          />
-          <StatCard
-            title="Pamięć RAM"
-            value={stats.ramUsage}
-            unit="%"
-            icon={<Activity className="w-5 h-5 text-green-600" />}
-            progress={stats.ramUsage}
-            color="bg-green-100 dark:bg-green-900/30"
-          />
-          <StatCard
-            title="Wolne Miejsce"
-            value={stats.diskFree}
-            icon={<HardDrive className="w-5 h-5 text-purple-600" />}
-            color="bg-purple-100 dark:bg-purple-900/30"
-          />
+        {/* Main Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {isLoading ? (
+            <>
+              <Skeleton className="h-32 rounded-2xl" />
+              <Skeleton className="h-32 rounded-2xl" />
+              <Skeleton className="h-32 rounded-2xl" />
+            </>
+          ) : (
+            <>
+              <StatCard
+                title="Temperatura CPU"
+                value={stats?.cpu_temp.replace('°C', '') || 0}
+                unit="°C"
+                icon={<Thermometer className="w-5 h-5 text-orange-600" />}
+                progress={Math.min(100, (parseFloat(stats?.cpu_temp || "0") / 85) * 100)}
+                color="bg-orange-100 dark:bg-orange-900/30"
+              />
+              <StatCard
+                title="Pamięć RAM"
+                value={stats?.ram_percent.replace('%', '') || 0}
+                unit="%"
+                icon={<Activity className="w-5 h-5 text-green-600" />}
+                progress={parseFloat(stats?.ram_percent || "0")}
+                color="bg-green-100 dark:bg-green-900/30"
+              />
+              <StatCard
+                title="Uptime"
+                value={stats?.uptime || "N/A"}
+                icon={<Clock className="w-5 h-5 text-blue-600" />}
+                color="bg-blue-100 dark:bg-blue-900/30"
+              />
+            </>
+          )}
+        </div>
+
+        {/* Disks Section */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Cpu className="w-5 h-5 text-purple-500" />
+            Pamięć Masowa
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            {isLoading ? (
+              Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)
+            ) : (
+              disks.map((disk, index) => (
+                <DiskCard key={index} disk={disk} />
+              ))
+            )}
+          </div>
         </div>
 
         {/* Controls Section */}
@@ -74,20 +133,19 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl">
             <h3 className="text-xl font-semibold mb-2">Status Systemu</h3>
-            <p className="opacity-90 mb-4">Wszystkie usługi działają poprawnie. Ostatnia kopia zapasowa wykonana 2 godziny temu.</p>
-            <div className="flex gap-2">
-              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Nginx: OK</span>
-              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Docker: OK</span>
-              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Database: OK</span>
+            <p className="opacity-90 mb-4">Wszystkie usługi działają poprawnie. Dane pobierane na żywo z Twojego Raspberry Pi.</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">API: Połączono</span>
+              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Dyski: {disks.length}</span>
+              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Status: OK</span>
             </div>
           </div>
           <div className="p-6 rounded-2xl bg-white dark:bg-gray-900 shadow-lg border border-gray-100 dark:border-gray-800">
             <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Informacje o sprzęcie</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex justify-between"><span>Model:</span> <span className="font-medium text-gray-900 dark:text-white">Raspberry Pi 4 Model B</span></li>
-              <li className="flex justify-between"><span>Procesor:</span> <span className="font-medium text-gray-900 dark:text-white">Broadcom BCM2711, Quad core Cortex-A72</span></li>
-              <li className="flex justify-between"><span>Pamięć:</span> <span className="font-medium text-gray-900 dark:text-white">4GB LPDDR4-3200 SDRAM</span></li>
-              <li className="flex justify-between"><span>System:</span> <span className="font-medium text-gray-900 dark:text-white">Raspbian GNU/Linux 11 (bullseye)</span></li>
+              <li className="flex justify-between"><span>Host:</span> <span className="font-medium text-gray-900 dark:text-white">michal-pi400.local</span></li>
+              <li className="flex justify-between"><span>Model:</span> <span className="font-medium text-gray-900 dark:text-white">Raspberry Pi 400</span></li>
+              <li className="flex justify-between"><span>System:</span> <span className="font-medium text-gray-900 dark:text-white">Linux (Raspbian)</span></li>
             </ul>
           </div>
         </div>
