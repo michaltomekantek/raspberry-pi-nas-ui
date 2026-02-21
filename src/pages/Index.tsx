@@ -93,10 +93,10 @@ const Index = () => {
               />
               <StatCard
                 title="Pamięć RAM"
-                value={stats?.ram_percent.replace('%', '') || 0}
-                unit="%"
+                value={`${stats?.ram.used_gb.toFixed(1)} / ${stats?.ram.total_gb.toFixed(1)}`}
+                unit=" GB"
                 icon={<Activity className="w-5 h-5 text-green-600" />}
-                progress={parseFloat(stats?.ram_percent || "0")}
+                progress={parseFloat(stats?.ram.percent || "0")}
                 color="bg-green-100 dark:bg-green-900/30"
               />
               <StatCard

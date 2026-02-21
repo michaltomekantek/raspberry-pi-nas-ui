@@ -13,7 +13,11 @@ export interface PiStatsResponse {
   system: {
     uptime: string;
     cpu_temp: string;
-    ram_percent: string;
+    ram: {
+      total_gb: number;
+      used_gb: number;
+      percent: string;
+    };
   };
   disks: DiskInfo[];
 }
@@ -30,7 +34,6 @@ export const usePiStats = () => {
       }
       return response.json();
     },
-    // Wyłączamy automatyczne odświeżanie
     refetchInterval: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
