@@ -99,7 +99,7 @@ const Index = () => {
                 <>
                   <StatCard
                     title="Temperatura CPU"
-                    value={data?.cpu_temp.replace('°C', '') || 0}
+                    value={data?.cpu_temp?.replace('°C', '') || "0"}
                     unit="°C"
                     icon={<Thermometer className="w-5 h-5 text-orange-600" />}
                     progress={Math.min(100, (parseFloat(data?.cpu_temp || "0") / 85) * 100)}
@@ -108,7 +108,7 @@ const Index = () => {
                   />
                   <StatCard
                     title="Pamięć RAM"
-                    value={data?.ram_percent.replace('%', '') || 0}
+                    value={data?.ram_percent?.replace('%', '') || "0"}
                     unit="%"
                     icon={<Activity className="w-5 h-5 text-green-600" />}
                     progress={parseFloat(data?.ram_percent || "0")}
