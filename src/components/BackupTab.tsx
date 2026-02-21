@@ -3,7 +3,7 @@ import { useBackups, useBackupDetails } from '@/hooks/use-backups';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, CheckCircle2, AlertCircle, Clock, Database, Image, Video, HardDrive, ArrowRight, RefreshCw } from "lucide-react";
+import { FileText, CheckCircle2, AlertCircle, Clock, Database, Image, Video, HardDrive, ArrowRight, RefreshCw, PlusCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -101,68 +101,77 @@ const BackupTab = () => {
                 <Badge variant="outline" className="border-current">LOG</Badge>
               </div>
 
-              {details.details ? (
-                <>
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
-                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                        <Image className="w-3 h-3" /> Zdjęcia
-                      </div>
-                      <p className="text-xl font-bold">{details.details.photos_size}</p>
-                    </div>
-                    <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
-                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                        <Video className="w-3 h-3" /> Wideo
-                      </div>
-                      <p className="text-xl font-bold">{details.details.videos_size}</p>
-                    </div>
-                    <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
-                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                        <Image className="w-3 h-3 opacity-50" /> Miniatury
-                      </div>
-                      <p className="text-xl font-bold">{details.details.thumbs_size}</p>
-                    </div>
+              {/* Source Sizes Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                    <Image className="w-3 h-3" /> Zdjęcia (Źródło)
                   </div>
-
-                  {/* Detailed Info */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30">
-                      <div className="flex items-center gap-3">
-                        <Database className="w-5 h-5 text-blue-500" />
-                        <span className="text-sm font-medium">Baza Danych</span>
-                      </div>
-                      <Badge className="bg-blue-500">{details.details.db_status}</Badge>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                      <div className="flex items-center gap-2 text-sm font-medium mb-2">
-                        <RefreshCw className="w-4 h-4 text-orange-500" />
-                        Wynik Synchronizacji
-                      </div>
-                      <p className="text-sm text-muted-foreground bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-100 dark:border-gray-800 font-mono">
-                        {details.details.sync_result}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30">
-                      <div className="flex items-center gap-3">
-                        <HardDrive className="w-5 h-5 text-purple-500" />
-                        <span className="text-sm font-medium">Łącznie na dysku</span>
-                      </div>
-                      <span className="text-lg font-bold text-purple-700 dark:text-purple-400">{details.details.total_on_disk}</span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="p-8 text-center border-2 border-dashed rounded-2xl text-muted-foreground">
-                  <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                  <p>Brak szczegółowych danych dla tego logu.</p>
-                  <p className="text-xs">Prawdopodobnie operacja została przerwana lub nie wygenerowała statystyk.</p>
+                  <p className="text-xl font-bold">{details.source_sizes?.photos || "N/A"}</p>
                 </div>
-              )}
+                <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                    <Video className="w-3 h-3" /> Wideo (Źródło)
+                  </div>
+                  <p className="text-xl font-bold">{details.source_sizes?.videos || "N/A"}</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                    <Image className="w-3 h-3 opacity-50" /> Miniatury (Źródło)
+                  </div>
+                  <p className="text-xl font-bold">{details.source_sizes?.thumbs || "N/A"}</p>
+                </div>
+              </div>
+
+              {/* Sync Stats Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                  <RefreshCw className="w-4 h-4" />
+                  Statystyki Synchronizacji
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {Object.entries(details.sync_stats || {}).map(([key, stat]) => (
+                    <div key={key} className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-bold">{key}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <PlusCircle className="w-3 h-3 text-green-500" />
+                          <span className="text-sm font-bold">{stat.new_items}</span>
+                        </div>
+                        <Badge variant="secondary" className="text-[10px]">{stat.added_mb} MB</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Footer Info */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30">
+                  <div className="flex items-center gap-3">
+                    <Database className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm font-medium">Baza Danych</span>
+                  </div>
+                  <Badge className={cn(details.db_status === "OK" ? "bg-green-500" : "bg-red-500")}>
+                    {details.db_status}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30">
+                  <div className="flex items-center gap-3">
+                    <HardDrive className="w-5 h-5 text-purple-500" />
+                    <span className="text-sm font-medium">Łączne użycie HDD</span>
+                  </div>
+                  <span className="text-lg font-bold text-purple-700 dark:text-purple-400">{details.total_hdd_usage}</span>
+                </div>
+              </div>
             </div>
-          ) : null}
+          ) : (
+            <div className="p-8 text-center border-2 border-dashed rounded-2xl text-muted-foreground">
+              <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-20" />
+              <p>Brak danych dla tego logu.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

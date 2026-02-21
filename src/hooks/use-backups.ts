@@ -6,18 +6,27 @@ export interface BackupListItem {
   date: string;
 }
 
+export interface SyncStat {
+  new_items: number;
+  added_mb: number;
+}
+
 export interface BackupDetails {
-  filename: string;
-  status: string;
   timestamp: string;
-  details: {
-    photos_size: string;
-    thumbs_size: string;
-    videos_size: string;
-    db_status: string;
-    sync_result: string;
-    total_on_disk: string;
+  status: string;
+  db_status: string;
+  source_sizes: {
+    photos: string;
+    thumbs: string;
+    videos: string;
   };
+  sync_stats: {
+    photos: SyncStat;
+    thumbnails: SyncStat;
+    videos: SyncStat;
+  };
+  total_hdd_usage: string;
+  filename: string;
 }
 
 const BASE_URL = "http://michal-pi400.local:5000/backups";
