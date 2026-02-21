@@ -1,26 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 
 export interface PartitionInfo {
-  partition_name: string;
-  mountpoint: string;
-  total_gb: number;
-  used_gb: number;
-  percent_used: string;
+  mount: string;
+  used_percent: string;
+  free_gb: number;
 }
 
 export interface PhysicalDisk {
-  physical_device: string;
-  temperature: string;
+  device: string;
+  temp: string;
   partitions: PartitionInfo[];
 }
 
 export interface PiStatsResponse {
-  system: {
-    uptime: string;
-    cpu_temp: string;
-    ram_percent: string;
-  };
-  physical_disks: PhysicalDisk[];
+  cpu_temp: string;
+  ram_percent: string;
+  uptime?: string; // Opcjonalne, jeśli zniknęło ze zwrotki
+  disks: PhysicalDisk[];
 }
 
 const API_URL = "http://michal-pi400.local:5000/system/stats";
@@ -35,8 +31,6 @@ export const usePiStats = () => {
       }
       return response.json();
     },
-    refetchInterval: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    refetchInterval: 30000, // Odświeżaj co 30s
   });
 };

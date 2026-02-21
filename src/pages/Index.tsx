@@ -35,8 +35,7 @@ const Index = () => {
     );
   }
 
-  const stats = data?.system;
-  const physicalDisks = data?.physical_disks || [];
+  const physicalDisks = data?.disks || [];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-4 md:p-8">
@@ -60,7 +59,7 @@ const Index = () => {
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-800" />
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Clock className="w-4 h-4 text-orange-500" />
-                {isLoading ? "..." : stats?.uptime}
+                {isLoading ? "..." : (data?.uptime || "N/A")}
               </div>
             </div>
             <Button 
@@ -100,25 +99,25 @@ const Index = () => {
                 <>
                   <StatCard
                     title="Temperatura CPU"
-                    value={stats?.cpu_temp.replace('°C', '') || 0}
+                    value={data?.cpu_temp.replace('°C', '') || 0}
                     unit="°C"
                     icon={<Thermometer className="w-5 h-5 text-orange-600" />}
-                    progress={Math.min(100, (parseFloat(stats?.cpu_temp || "0") / 85) * 100)}
+                    progress={Math.min(100, (parseFloat(data?.cpu_temp || "0") / 85) * 100)}
                     progressLabel="skali"
                     color="bg-orange-100 dark:bg-orange-900/30"
                   />
                   <StatCard
                     title="Pamięć RAM"
-                    value={stats?.ram_percent.replace('%', '') || 0}
+                    value={data?.ram_percent.replace('%', '') || 0}
                     unit="%"
                     icon={<Activity className="w-5 h-5 text-green-600" />}
-                    progress={parseFloat(stats?.ram_percent || "0")}
+                    progress={parseFloat(data?.ram_percent || "0")}
                     progressLabel="wykorzystania"
                     color="bg-green-100 dark:bg-green-900/30"
                   />
                   <StatCard
                     title="Uptime"
-                    value={stats?.uptime || "N/A"}
+                    value={data?.uptime || "N/A"}
                     icon={<Clock className="w-5 h-5 text-blue-600" />}
                     color="bg-blue-100 dark:bg-blue-900/30"
                   />
