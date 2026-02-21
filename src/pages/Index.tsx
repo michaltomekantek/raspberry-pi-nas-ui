@@ -34,7 +34,7 @@ const Index = () => {
   }
 
   const stats = data?.system;
-  const disks = data?.disks || [];
+  const physicalDisks = data?.physical_disks || [];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020617] p-4 md:p-8">
@@ -93,10 +93,10 @@ const Index = () => {
               />
               <StatCard
                 title="Pamięć RAM"
-                value={`${stats?.ram.used_gb.toFixed(1)} / ${stats?.ram.total_gb.toFixed(1)}`}
-                unit=" GB"
+                value={stats?.ram_percent.replace('%', '') || 0}
+                unit="%"
                 icon={<Activity className="w-5 h-5 text-green-600" />}
-                progress={parseFloat(stats?.ram.percent || "0")}
+                progress={parseFloat(stats?.ram_percent || "0")}
                 color="bg-green-100 dark:bg-green-900/30"
               />
               <StatCard
@@ -113,13 +113,13 @@ const Index = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Cpu className="w-5 h-5 text-purple-500" />
-            Pamięć Masowa
+            Pamięć Masowa (Dyski Fizyczne)
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {isLoading ? (
-              Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)
+              Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)
             ) : (
-              disks.map((disk, index) => (
+              physicalDisks.map((disk, index) => (
                 <DiskCard key={index} disk={disk} />
               ))
             )}
@@ -136,7 +136,7 @@ const Index = () => {
             <p className="opacity-90 mb-4">Wszystkie usługi działają poprawnie. Dane pobierane na żywo z Twojego Raspberry Pi.</p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">API: Połączono</span>
-              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Dyski: {disks.length}</span>
+              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Dyski Fizyczne: {physicalDisks.length}</span>
               <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Status: OK</span>
             </div>
           </div>
