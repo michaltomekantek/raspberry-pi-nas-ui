@@ -3,7 +3,7 @@ import { useBackups, useBackupDetails } from '@/hooks/use-backups';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, CheckCircle2, AlertCircle, Clock, Database, Image, Video, HardDrive, ArrowRight } from "lucide-react";
+import { FileText, CheckCircle2, AlertCircle, Clock, Database, Image, Video, HardDrive, ArrowRight, RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -101,56 +101,66 @@ const BackupTab = () => {
                 <Badge variant="outline" className="border-current">LOG</Badge>
               </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                    <Image className="w-3 h-3" /> Zdjęcia
+              {details.details ? (
+                <>
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                        <Image className="w-3 h-3" /> Zdjęcia
+                      </div>
+                      <p className="text-xl font-bold">{details.details.photos_size}</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                        <Video className="w-3 h-3" /> Wideo
+                      </div>
+                      <p className="text-xl font-bold">{details.details.videos_size}</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                        <Image className="w-3 h-3 opacity-50" /> Miniatury
+                      </div>
+                      <p className="text-xl font-bold">{details.details.thumbs_size}</p>
+                    </div>
                   </div>
-                  <p className="text-xl font-bold">{details.details.photos_size}</p>
-                </div>
-                <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                    <Video className="w-3 h-3" /> Wideo
-                  </div>
-                  <p className="text-xl font-bold">{details.details.videos_size}</p>
-                </div>
-                <div className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                    <Image className="w-3 h-3 opacity-50" /> Miniatury
-                  </div>
-                  <p className="text-xl font-bold">{details.details.thumbs_size}</p>
-                </div>
-              </div>
 
-              {/* Detailed Info */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30">
-                  <div className="flex items-center gap-3">
-                    <Database className="w-5 h-5 text-blue-500" />
-                    <span className="text-sm font-medium">Baza Danych</span>
-                  </div>
-                  <Badge className="bg-blue-500">{details.details.db_status}</Badge>
-                </div>
+                  {/* Detailed Info */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30">
+                      <div className="flex items-center gap-3">
+                        <Database className="w-5 h-5 text-blue-500" />
+                        <span className="text-sm font-medium">Baza Danych</span>
+                      </div>
+                      <Badge className="bg-blue-500">{details.details.db_status}</Badge>
+                    </div>
 
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center gap-2 text-sm font-medium mb-2">
-                    <RefreshCw className="w-4 h-4 text-orange-500" />
-                    Wynik Synchronizacji
-                  </div>
-                  <p className="text-sm text-muted-foreground bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-100 dark:border-gray-800 font-mono">
-                    {details.details.sync_result}
-                  </p>
-                </div>
+                    <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                      <div className="flex items-center gap-2 text-sm font-medium mb-2">
+                        <RefreshCw className="w-4 h-4 text-orange-500" />
+                        Wynik Synchronizacji
+                      </div>
+                      <p className="text-sm text-muted-foreground bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-100 dark:border-gray-800 font-mono">
+                        {details.details.sync_result}
+                      </p>
+                    </div>
 
-                <div className="flex items-center justify-between p-4 rounded-xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30">
-                  <div className="flex items-center gap-3">
-                    <HardDrive className="w-5 h-5 text-purple-500" />
-                    <span className="text-sm font-medium">Łącznie na dysku</span>
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30">
+                      <div className="flex items-center gap-3">
+                        <HardDrive className="w-5 h-5 text-purple-500" />
+                        <span className="text-sm font-medium">Łącznie na dysku</span>
+                      </div>
+                      <span className="text-lg font-bold text-purple-700 dark:text-purple-400">{details.details.total_on_disk}</span>
+                    </div>
                   </div>
-                  <span className="text-lg font-bold text-purple-700 dark:text-purple-400">{details.details.total_on_disk}</span>
+                </>
+              ) : (
+                <div className="p-8 text-center border-2 border-dashed rounded-2xl text-muted-foreground">
+                  <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                  <p>Brak szczegółowych danych dla tego logu.</p>
+                  <p className="text-xs">Prawdopodobnie operacja została przerwana lub nie wygenerowała statystyk.</p>
                 </div>
-              </div>
+              )}
             </div>
           ) : null}
         </CardContent>
@@ -159,5 +169,4 @@ const BackupTab = () => {
   );
 };
 
-import { RefreshCw } from 'lucide-react';
 export default BackupTab;
