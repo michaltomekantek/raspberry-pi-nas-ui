@@ -89,6 +89,7 @@ const Index = () => {
                 unit="°C"
                 icon={<Thermometer className="w-5 h-5 text-orange-600" />}
                 progress={Math.min(100, (parseFloat(stats?.cpu_temp || "0") / 85) * 100)}
+                progressLabel="skali"
                 color="bg-orange-100 dark:bg-orange-900/30"
               />
               <StatCard
@@ -97,6 +98,7 @@ const Index = () => {
                 unit="%"
                 icon={<Activity className="w-5 h-5 text-green-600" />}
                 progress={parseFloat(stats?.ram_percent || "0")}
+                progressLabel="wykorzystania"
                 color="bg-green-100 dark:bg-green-900/30"
               />
               <StatCard
