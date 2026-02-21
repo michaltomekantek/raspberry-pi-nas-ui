@@ -1,11 +1,13 @@
-import { Thermometer, Cpu, Activity, Globe, Clock, RefreshCw, AlertCircle } from "lucide-react";
+import { Thermometer, Cpu, Activity, Globe, Clock, RefreshCw, AlertCircle, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { usePiStats } from "@/hooks/use-pi-stats";
 import StatCard from "@/components/StatCard";
 import DiskCard from "@/components/DiskCard";
 import SystemControls from "@/components/SystemControls";
+import BackupTab from "@/components/BackupTab";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { showSuccess, showError } from "@/utils/toast";
 
 const Index = () => {
@@ -73,63 +75,82 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Main Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {isLoading ? (
-            <>
-              <Skeleton className="h-32 rounded-2xl" />
-              <Skeleton className="h-32 rounded-2xl" />
-              <Skeleton className="h-32 rounded-2xl" />
-            </>
-          ) : (
-            <>
-              <StatCard
-                title="Temperatura CPU"
-                value={stats?.cpu_temp.replace('°C', '') || 0}
-                unit="°C"
-                icon={<Thermometer className="w-5 h-5 text-orange-600" />}
-                progress={Math.min(100, (parseFloat(stats?.cpu_temp || "0") / 85) * 100)}
-                progressLabel="skali"
-                color="bg-orange-100 dark:bg-orange-900/30"
-              />
-              <StatCard
-                title="Pamięć RAM"
-                value={stats?.ram_percent.replace('%', '') || 0}
-                unit="%"
-                icon={<Activity className="w-5 h-5 text-green-600" />}
-                progress={parseFloat(stats?.ram_percent || "0")}
-                progressLabel="wykorzystania"
-                color="bg-green-100 dark:bg-green-900/30"
-              />
-              <StatCard
-                title="Uptime"
-                value={stats?.uptime || "N/A"}
-                icon={<Clock className="w-5 h-5 text-blue-600" />}
-                color="bg-blue-100 dark:bg-blue-900/30"
-              />
-            </>
-          )}
-        </div>
+        <Tabs defaultValue="dashboard" className="space-y-8">
+          <TabsList className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm p-1 rounded-xl border border-gray-100 dark:border-gray-800">
+            <TabsTrigger value="dashboard" className="rounded-lg gap-2">
+              <LayoutDashboard className="w-4 h-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="backups" className="rounded-lg gap-2">
+              <ShieldCheck className="w-4 h-4" />
+              Backupy
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Disks Section */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-purple-500" />
-            Pamięć Masowa (Dyski Fizyczne)
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {isLoading ? (
-              Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)
-            ) : (
-              physicalDisks.map((disk, index) => (
-                <DiskCard key={index} disk={disk} />
-              ))
-            )}
-          </div>
-        </div>
+          <TabsContent value="dashboard" className="space-y-8 mt-0">
+            {/* Main Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {isLoading ? (
+                <>
+                  <Skeleton className="h-32 rounded-2xl" />
+                  <Skeleton className="h-32 rounded-2xl" />
+                  <Skeleton className="h-32 rounded-2xl" />
+                </>
+              ) : (
+                <>
+                  <StatCard
+                    title="Temperatura CPU"
+                    value={stats?.cpu_temp.replace('°C', '') || 0}
+                    unit="°C"
+                    icon={<Thermometer className="w-5 h-5 text-orange-600" />}
+                    progress={Math.min(100, (parseFloat(stats?.cpu_temp || "0") / 85) * 100)}
+                    progressLabel="skali"
+                    color="bg-orange-100 dark:bg-orange-900/30"
+                  />
+                  <StatCard
+                    title="Pamięć RAM"
+                    value={stats?.ram_percent.replace('%', '') || 0}
+                    unit="%"
+                    icon={<Activity className="w-5 h-5 text-green-600" />}
+                    progress={parseFloat(stats?.ram_percent || "0")}
+                    progressLabel="wykorzystania"
+                    color="bg-green-100 dark:bg-green-900/30"
+                  />
+                  <StatCard
+                    title="Uptime"
+                    value={stats?.uptime || "N/A"}
+                    icon={<Clock className="w-5 h-5 text-blue-600" />}
+                    color="bg-blue-100 dark:bg-blue-900/30"
+                  />
+                </>
+              )}
+            </div>
 
-        {/* Controls Section */}
-        <SystemControls />
+            {/* Disks Section */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Cpu className="w-5 h-5 text-purple-500" />
+                Pamięć Masowa (Dyski Fizyczne)
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {isLoading ? (
+                  Array(3).fill(0).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)
+                ) : (
+                  physicalDisks.map((disk, index) => (
+                    <DiskCard key={index} disk={disk} />
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Controls Section */}
+            <SystemControls />
+          </TabsContent>
+
+          <TabsContent value="backups" className="mt-0">
+            <BackupTab />
+          </TabsContent>
+        </Tabs>
 
         {/* Footer Info */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
