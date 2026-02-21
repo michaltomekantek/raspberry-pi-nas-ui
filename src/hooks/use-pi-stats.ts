@@ -4,6 +4,7 @@ export interface PartitionInfo {
   mount: string;
   used_percent: string;
   free_gb: number;
+  total_gb: number;
 }
 
 export interface PhysicalDisk {
@@ -13,9 +14,18 @@ export interface PhysicalDisk {
 }
 
 export interface PiStatsResponse {
-  cpu_temp: string;
-  ram_percent: string;
-  uptime?: string; // Opcjonalne, jeśli zniknęło ze zwrotki
+  system_info: {
+    uptime: string;
+    cpu_temp: string;
+    cpu_load_1min: number;
+    active_processes: number;
+  };
+  ram: {
+    total_gb: number;
+    used_gb: number;
+    free_gb: number;
+    percent: string;
+  };
   disks: PhysicalDisk[];
 }
 

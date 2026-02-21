@@ -37,7 +37,7 @@ const DiskCard = ({ disk }: DiskCardProps) => {
                 </div>
                 <div className="flex items-center gap-1 text-[10px] text-muted-foreground shrink-0">
                   <Database className="w-2.5 h-2.5" />
-                  <span>{partition.free_gb.toFixed(1)} GB wolne</span>
+                  <span>{partition.free_gb.toFixed(1)} / {partition.total_gb.toFixed(0)} GB wolne</span>
                 </div>
               </div>
               <Progress value={usagePercent} className="h-1.5" />

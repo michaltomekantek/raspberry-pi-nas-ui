@@ -1,4 +1,4 @@
-import { Thermometer, Cpu, Activity, Globe, Clock, RefreshCw, AlertCircle, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { Thermometer, Cpu, Activity, Globe, Clock, RefreshCw, AlertCircle, LayoutDashboard, ShieldCheck, Zap } from "lucide-react";
 import { usePiStats } from "@/hooks/use-pi-stats";
 import StatCard from "@/components/StatCard";
 import DiskCard from "@/components/DiskCard";
@@ -59,7 +59,7 @@ const Index = () => {
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-800" />
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Clock className="w-4 h-4 text-orange-500" />
-                {isLoading ? "..." : (data?.uptime || "N/A")}
+                {isLoading ? "..." : (data?.system_info?.uptime || "N/A")}
               </div>
             </div>
             <Button 
@@ -99,26 +99,29 @@ const Index = () => {
                 <>
                   <StatCard
                     title="Temperatura CPU"
-                    value={data?.cpu_temp?.replace('°C', '') || "0"}
+                    value={data?.system_info?.cpu_temp?.replace('°C', '') || "0"}
                     unit="°C"
                     icon={<Thermometer className="w-5 h-5 text-orange-600" />}
-                    progress={Math.min(100, (parseFloat(data?.cpu_temp || "0") / 85) * 100)}
+                    progress={Math.min(100, (parseFloat(data?.system_info?.cpu_temp || "0") / 85) * 100)}
                     progressLabel="skali"
                     color="bg-orange-100 dark:bg-orange-900/30"
                   />
                   <StatCard
                     title="Pamięć RAM"
-                    value={data?.ram_percent?.replace('%', '') || "0"}
+                    value={data?.ram?.percent?.replace('%', '') || "0"}
                     unit="%"
                     icon={<Activity className="w-5 h-5 text-green-600" />}
-                    progress={parseFloat(data?.ram_percent || "0")}
-                    progressLabel="wykorzystania"
+                    progress={parseFloat(data?.ram?.percent || "0")}
+                    progressLabel={`${data?.ram?.used_gb.toFixed(1)} / ${data?.ram?.total_gb.toFixed(1)} GB`}
                     color="bg-green-100 dark:bg-green-900/30"
                   />
                   <StatCard
-                    title="Uptime"
-                    value={data?.uptime || "N/A"}
-                    icon={<Clock className="w-5 h-5 text-blue-600" />}
+                    title="Obciążenie CPU"
+                    value={data?.system_info?.cpu_load_1min || "0"}
+                    unit=""
+                    icon={<Zap className="w-5 h-5 text-blue-600" />}
+                    progress={Math.min(100, (data?.system_info?.cpu_load_1min || 0) * 25)}
+                    progressLabel="load avg"
                     color="bg-blue-100 dark:bg-blue-900/30"
                   />
                 </>
@@ -158,7 +161,7 @@ const Index = () => {
             <p className="opacity-90 mb-4">Wszystkie usługi działają poprawnie. Dane pobierane na żywo z Twojego Raspberry Pi.</p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">API: Połączono</span>
-              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Dyski Fizyczne: {physicalDisks.length}</span>
+              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Procesy: {data?.system_info?.active_processes}</span>
               <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Status: OK</span>
             </div>
           </div>
