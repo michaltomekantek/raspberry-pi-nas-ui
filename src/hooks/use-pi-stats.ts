@@ -30,6 +30,9 @@ export const usePiStats = () => {
       }
       return response.json();
     },
-    refetchInterval: 10000, // Automatyczne odświeżanie co 10 sekund
+    // Wyłączamy automatyczne odświeżanie
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 };
