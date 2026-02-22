@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Power, RefreshCw, ShieldCheck, Terminal, AlertTriangle } from "lucide-react";
+import { Power, RefreshCw, ShieldCheck, Layout, Server, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
@@ -17,6 +17,28 @@ import { showSuccess, showError, showLoading, dismissToast } from "@/utils/toast
 const SystemTab = () => {
   const [isRebootDialogOpen, setIsRebootDialogOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
+
+  const handleAction = async (name: string, endpoint: string) => {
+    const toastId = showLoading(`Uruchamianie: ${name}...`);
+    setIsPending(true);
+    
+    try {
+      const response = await fetch(`http://michal-pi400.local:5000${endpoint}`, {
+        method: "POST",
+        headers: { "accept": "application/json" }
+      });
+
+      if (!response.ok) throw new Error("Serwer zwrócił błąd");
+      
+      const data = await response.json();
+      showSuccess(`${name}: ${data.message || "Zadanie uruchomione."}`);
+    } catch (err) {
+      showError(`Nie udało się uruchomić: ${name}`);
+    } finally {
+      dismissToast(toastId);
+      setIsPending(false);
+    }
+  };
 
   const handleReboot = async () => {
     const toastId = showLoading("Wysyłanie polecenia restartu...");
@@ -86,30 +108,44 @@ const SystemTab = () => {
               <ShieldCheck className="w-5 h-5 text-green-500" />
               Konserwacja
             </CardTitle>
-            <CardDescription>Aktualizacje i narzędzia systemowe</CardDescription>
+            <CardDescription>Aktualizacje oprogramowania NAS</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Button 
               variant="outline" 
-              className="flex items-center gap-2 h-16 border-green-200 hover:bg-green-50 dark:border-green-900 text-green-700 dark:text-green-400"
-              onClick={() => showSuccess("Sprawdzanie aktualizacji...")}
+              className="flex items-center gap-2 h-16 border-purple-200 hover:bg-purple-50 dark:border-purple-900 text-purple-700 dark:text-purple-400"
+              onClick={() => handleAction("Aktualizacja Backend", "/actions/update-core")}
+              disabled={isPending}
             >
-              <ShieldCheck className="w-5 h-5" />
+              <Server className="w-5 h-5" />
               <div className="text-left">
-                <div className="font-bold">Aktualizuj</div>
-                <div className="text-[10px] opacity-70">apt update && upgrade</div>
+                <div className="font-bold">Backend</div>
+                <div className="text-[10px] opacity-70">Aktualizacja Core (Python)</div>
               </div>
             </Button>
 
             <Button 
               variant="outline" 
-              className="flex items-center gap-2 h-16 border-purple-200 hover:bg-purple-50 dark:border-purple-900 text-purple-700 dark:text-purple-400"
-              onClick={() => showSuccess("Otwieranie terminala...")}
+              className="flex items-center gap-2 h-16 border-blue-200 hover:bg-blue-50 dark:border-blue-900 text-blue-700 dark:text-blue-400"
+              onClick={() => handleAction("Aktualizacja GUI", "/actions/update-ui")}
+              disabled={isPending}
             >
-              <Terminal className="w-5 h-5" />
+              <Layout className="w-5 h-5" />
               <div className="text-left">
-                <div className="font-bold">Konsola SSH</div>
-                <div className="text-[10px] opacity-70">Dostęp przez przeglądarkę</div>
+                <div className="font-bold">Interfejs GUI</div>
+                <div className="text-[10px] opacity-70">Aktualizacja React App</div>
+              </div>
+            </Button>
+
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2 h-16 border-green-200 hover:bg-green-50 dark:border-green-900 text-green-700 dark:text-green-400 sm:col-span-2"
+              onClick={() => showSuccess("Sprawdzanie aktualizacji systemowych...")}
+            >
+              <ShieldCheck className="w-5 h-5" />
+              <div className="text-left">
+                <div className="font-bold">System OS</div>
+                <div className="text-[10px] opacity-70">apt update && upgrade</div>
               </div>
             </Button>
           </CardContent>
