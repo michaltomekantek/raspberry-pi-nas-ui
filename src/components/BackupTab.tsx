@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useBackups, useBackupDetails } from '@/hooks/use-backups';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -10,7 +10,8 @@ import {
   Play,
   Snowflake,
   Terminal,
-  Download
+  Download,
+  History
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,23 @@ const BackupTab = () => {
   const [isActionPending, setIsActionPending] = useState(false);
   const { data: backups, isLoading: listLoading, refetch } = useBackups();
   const { data: logData, isLoading: detailsLoading } = useBackupDetails(selectedFile);
+
+  // Segregacja plików
+  const groupedBackups = useMemo(() => {
+    if (!backups) return { daily: [], cold: [], other: [] };
+    
+    return backups.reduce((acc, file) => {
+      const name = file.filename.toLowerCase();
+      if (name.includes('cold')) {
+        acc.cold.push(file);
+      } else if (name.includes('backup') || name.includes('cron')) {
+        acc.daily.push(file);
+      } else {
+        acc.other.push(file);
+      }
+      return acc;
+    }, { daily: [] as any[], cold: [] as any[], other: [] as any[] });
+  }, [backups]);
 
   const runAction = async (name: string, endpoint: string) => {
     const toastId = showLoading(`Uruchamianie: ${name}...`);
@@ -39,6 +57,25 @@ const BackupTab = () => {
       setIsActionPending(false);
     }
   };
+
+  const renderFileButton = (file: any) => (
+    <button
+      key={file.filename}
+      onClick={() => setSelectedFile(file.filename)}
+      className={cn(
+        "w-full text-left p-2.5 rounded-xl transition-all border border-transparent hover:bg-white dark:hover:bg-gray-800 group flex items-center gap-3",
+        selectedFile === file.filename ? "bg-white dark:bg-gray-800 border-blue-200 dark:border-blue-900 shadow-sm" : "opacity-70"
+      )}
+    >
+      <FileText className={cn(
+        "w-3.5 h-3.5 shrink-0",
+        selectedFile === file.filename ? "text-blue-500" : "text-muted-foreground"
+      )} />
+      <span className="text-[11px] font-medium truncate">
+        {file.filename}
+      </span>
+    </button>
+  );
 
   return (
     <div className="space-y-6">
@@ -78,37 +115,55 @@ const BackupTab = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lista Logów */}
         <Card className="lg:col-span-1 border-none shadow-lg bg-white/50 backdrop-blur-sm dark:bg-gray-900/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-blue-500" />
-              Logi Systemowe
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <History className="w-4 h-4 text-blue-500" />
+              Historia Logów
             </CardTitle>
-            <CardDescription>Wybierz plik, aby zobaczyć treść</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <ScrollArea className="h-[600px] px-4 pb-4">
-              <div className="space-y-1">
+              <div className="space-y-6">
                 {listLoading ? (
-                  Array(12).fill(0).map((_, i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)
+                  Array(10).fill(0).map((_, i) => <Skeleton key={i} className="h-10 w-full rounded-xl" />)
                 ) : (
-                  backups?.map((backup) => (
-                    <button
-                      key={backup.filename}
-                      onClick={() => setSelectedFile(backup.filename)}
-                      className={cn(
-                        "w-full text-left p-3 rounded-xl transition-all border border-transparent hover:bg-white dark:hover:bg-gray-800 group flex items-center gap-3",
-                        selectedFile === backup.filename ? "bg-white dark:bg-gray-800 border-blue-200 dark:border-blue-900 shadow-sm" : "opacity-70"
-                      )}
-                    >
-                      <FileText className={cn(
-                        "w-4 h-4 shrink-0",
-                        selectedFile === backup.filename ? "text-blue-500" : "text-muted-foreground"
-                      )} />
-                      <span className="text-xs font-medium truncate">
-                        {backup.filename}
-                      </span>
-                    </button>
-                  ))
+                  <>
+                    {/* Sekcja Daily */}
+                    {groupedBackups.daily.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 px-2 flex items-center gap-2">
+                          <Play className="w-3 h-3" /> Daily Backup
+                        </h3>
+                        <div className="space-y-1">
+                          {groupedBackups.daily.map(renderFileButton)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Sekcja Cold */}
+                    {groupedBackups.cold.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400 px-2 flex items-center gap-2">
+                          <Snowflake className="w-3 h-3" /> Cold Storage
+                        </h3>
+                        <div className="space-y-1">
+                          {groupedBackups.cold.map(renderFileButton)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Sekcja Inne */}
+                    {groupedBackups.other.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 px-2 flex items-center gap-2">
+                          <FileText className="w-3 h-3" /> Inne Logi
+                        </h3>
+                        <div className="space-y-1">
+                          {groupedBackups.other.map(renderFileButton)}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </ScrollArea>
@@ -123,7 +178,7 @@ const BackupTab = () => {
                 <Terminal className="w-5 h-5 text-purple-500" />
                 Podgląd Logu
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-[11px] truncate max-w-[250px]">
                 {selectedFile || "Wybierz plik z listy"}
               </CardDescription>
             </div>
