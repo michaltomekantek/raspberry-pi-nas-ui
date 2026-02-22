@@ -54,7 +54,7 @@ const BackupTab = () => {
         <Button 
           variant="outline" 
           className="h-20 border-blue-200 bg-blue-50/50 hover:bg-blue-100 dark:bg-blue-900/10 dark:border-blue-900 flex items-center justify-start gap-4 px-6 rounded-2xl group"
-          onClick={() => runAction("Daily Backup", "/actions/run-cold-storage")}
+          onClick={() => runAction("Daily Backup", "/actions/run-daily-backup")}
           disabled={isActionPending}
         >
           <div className="p-3 bg-blue-500 rounded-xl text-white group-hover:scale-110 transition-transform">
@@ -69,7 +69,7 @@ const BackupTab = () => {
         <Button 
           variant="outline" 
           className="h-20 border-purple-200 bg-purple-50/50 hover:bg-purple-100 dark:bg-purple-900/10 dark:border-purple-900 flex items-center justify-start gap-4 px-6 rounded-2xl group"
-          onClick={() => runAction("Cold Storage Backup", "/actions/run-daily-backup")}
+          onClick={() => runAction("Cold Storage Backup", "/actions/run-cold-storage")}
           disabled={isActionPending}
         >
           <div className="p-3 bg-purple-500 rounded-xl text-white group-hover:scale-110 transition-transform">
