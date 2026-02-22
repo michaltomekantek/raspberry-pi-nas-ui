@@ -1,9 +1,10 @@
-import { Thermometer, Cpu, Activity, Globe, Clock, RefreshCw, AlertCircle, LayoutDashboard, ShieldCheck, Zap, Settings } from "lucide-react";
+import { Thermometer, Cpu, Activity, Globe, Clock, RefreshCw, AlertCircle, LayoutDashboard, ShieldCheck, Zap, Settings, Brain } from "lucide-react";
 import { usePiStats } from "@/hooks/use-pi-stats";
 import StatCard from "@/components/StatCard";
 import DiskCard from "@/components/DiskCard";
 import BackupTab from "@/components/BackupTab";
 import SystemTab from "@/components/SystemTab";
+import ImmichMLStatus from "@/components/ImmichMLStatus";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -90,6 +91,12 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-8 mt-0">
+            {/* Services Status Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <ImmichMLStatus />
+              {/* Można tu dodać inne usługi w przyszłości */}
+            </div>
+
             {/* Main Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {isLoading ? (
