@@ -11,14 +11,24 @@ export const useImmichML = () => {
     queryKey: ['immich-ml-status'],
     queryFn: async () => {
       try {
-        const response = await fetch(ML_URL);
+        const response = await fetch(ML_URL, {
+          mode: 'cors', // Próba wymuszenia CORS
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+        
         if (!response.ok) return false;
-        const data: ImmichMLResponse = await response.json();
+        
+        const data = await response.json();
         return data.message === "Immich ML";
       } catch (err) {
+        // Logujemy błąd do konsoli, aby użytkownik mógł sprawdzić przyczynę (np. CORS)
+        console.error("Błąd połączenia z Immich ML:", err);
         return false;
       }
     },
-    refetchInterval: 60000, // Sprawdzaj co minutę
+    refetchInterval: 60000,
+    retry: 1,
   });
 };
