@@ -1,9 +1,9 @@
-import { Thermometer, Cpu, Activity, Globe, Clock, RefreshCw, AlertCircle, LayoutDashboard, ShieldCheck, Zap } from "lucide-react";
+import { Thermometer, Cpu, Activity, Globe, Clock, RefreshCw, AlertCircle, LayoutDashboard, ShieldCheck, Zap, Settings } from "lucide-react";
 import { usePiStats } from "@/hooks/use-pi-stats";
 import StatCard from "@/components/StatCard";
 import DiskCard from "@/components/DiskCard";
-import SystemControls from "@/components/SystemControls";
 import BackupTab from "@/components/BackupTab";
+import SystemTab from "@/components/SystemTab";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -84,6 +84,10 @@ const Index = () => {
               <ShieldCheck className="w-4 h-4" />
               Backupy
             </TabsTrigger>
+            <TabsTrigger value="system" className="rounded-lg gap-2">
+              <Settings className="w-4 h-4" />
+              System
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-8 mt-0">
@@ -144,13 +148,14 @@ const Index = () => {
                 )}
               </div>
             </div>
-
-            {/* Controls Section */}
-            <SystemControls />
           </TabsContent>
 
           <TabsContent value="backups" className="mt-0">
             <BackupTab />
+          </TabsContent>
+
+          <TabsContent value="system" className="mt-0">
+            <SystemTab />
           </TabsContent>
         </Tabs>
 
