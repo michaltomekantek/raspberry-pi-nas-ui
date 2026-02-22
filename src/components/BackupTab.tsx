@@ -3,15 +3,16 @@ import { useBackups, useBackupDetails } from '@/hooks/use-backups';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   FileText, 
-  Clock, 
   ArrowRight, 
   Play,
   Snowflake,
   Terminal,
   Download,
-  History
+  History,
+  Search
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -58,23 +59,33 @@ const BackupTab = () => {
     }
   };
 
-  const renderFileButton = (file: any) => (
-    <button
-      key={file.filename}
-      onClick={() => setSelectedFile(file.filename)}
-      className={cn(
-        "w-full text-left p-2.5 rounded-xl transition-all border border-transparent hover:bg-white dark:hover:bg-gray-800 group flex items-center gap-3",
-        selectedFile === file.filename ? "bg-white dark:bg-gray-800 border-blue-200 dark:border-blue-900 shadow-sm" : "opacity-70"
+  const renderFileList = (files: any[]) => (
+    <div className="space-y-1 p-2">
+      {files.length === 0 ? (
+        <div className="py-8 text-center text-xs text-muted-foreground opacity-50">
+          Brak logów w tej kategorii
+        </div>
+      ) : (
+        files.map((file) => (
+          <button
+            key={file.filename}
+            onClick={() => setSelectedFile(file.filename)}
+            className={cn(
+              "w-full text-left p-2.5 rounded-lg transition-all border border-transparent hover:bg-white dark:hover:bg-gray-800 group flex items-center gap-3",
+              selectedFile === file.filename ? "bg-white dark:bg-gray-800 border-blue-200 dark:border-blue-900 shadow-sm" : "opacity-70"
+            )}
+          >
+            <FileText className={cn(
+              "w-3.5 h-3.5 shrink-0",
+              selectedFile === file.filename ? "text-blue-500" : "text-muted-foreground"
+            )} />
+            <span className="text-[11px] font-medium truncate">
+              {file.filename}
+            </span>
+          </button>
+        ))
       )}
-    >
-      <FileText className={cn(
-        "w-3.5 h-3.5 shrink-0",
-        selectedFile === file.filename ? "text-blue-500" : "text-muted-foreground"
-      )} />
-      <span className="text-[11px] font-medium truncate">
-        {file.filename}
-      </span>
-    </button>
+    </div>
   );
 
   return (
@@ -113,8 +124,8 @@ const BackupTab = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Lista Logów */}
-        <Card className="lg:col-span-1 border-none shadow-lg bg-white/50 backdrop-blur-sm dark:bg-gray-900/50">
+        {/* Lista Logów z Zakładkami */}
+        <Card className="lg:col-span-1 border-none shadow-lg bg-white/50 backdrop-blur-sm dark:bg-gray-900/50 overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <History className="w-4 h-4 text-blue-500" />
@@ -122,51 +133,45 @@ const BackupTab = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[600px] px-4 pb-4">
-              <div className="space-y-6">
+            <Tabs defaultValue="daily" className="w-full">
+              <TabsList className="w-full justify-start rounded-none bg-transparent border-b border-gray-100 dark:border-gray-800 px-4 h-10 gap-4">
+                <TabsTrigger value="daily" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-500 rounded-none px-0 text-[10px] font-bold uppercase tracking-wider">
+                  Daily
+                </TabsTrigger>
+                <TabsTrigger value="cold" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-purple-500 rounded-none px-0 text-[10px] font-bold uppercase tracking-wider">
+                  Cold
+                </TabsTrigger>
+                <TabsTrigger value="other" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-gray-500 rounded-none px-0 text-[10px] font-bold uppercase tracking-wider">
+                  Inne
+                </TabsTrigger>
+              </TabsList>
+              
+              <div className="p-0">
                 {listLoading ? (
-                  Array(10).fill(0).map((_, i) => <Skeleton key={i} className="h-10 w-full rounded-xl" />)
+                  <div className="p-4 space-y-2">
+                    {Array(8).fill(0).map((_, i) => <Skeleton key={i} className="h-9 w-full rounded-lg" />)}
+                  </div>
                 ) : (
                   <>
-                    {/* Sekcja Daily */}
-                    {groupedBackups.daily.length > 0 && (
-                      <div className="space-y-2">
-                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 px-2 flex items-center gap-2">
-                          <Play className="w-3 h-3" /> Daily Backup
-                        </h3>
-                        <div className="space-y-1">
-                          {groupedBackups.daily.map(renderFileButton)}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Sekcja Cold */}
-                    {groupedBackups.cold.length > 0 && (
-                      <div className="space-y-2">
-                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400 px-2 flex items-center gap-2">
-                          <Snowflake className="w-3 h-3" /> Cold Storage
-                        </h3>
-                        <div className="space-y-1">
-                          {groupedBackups.cold.map(renderFileButton)}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Sekcja Inne */}
-                    {groupedBackups.other.length > 0 && (
-                      <div className="space-y-2">
-                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-500 px-2 flex items-center gap-2">
-                          <FileText className="w-3 h-3" /> Inne Logi
-                        </h3>
-                        <div className="space-y-1">
-                          {groupedBackups.other.map(renderFileButton)}
-                        </div>
-                      </div>
-                    )}
+                    <TabsContent value="daily" className="m-0">
+                      <ScrollArea className="h-[500px]">
+                        {renderFileList(groupedBackups.daily)}
+                      </ScrollArea>
+                    </TabsContent>
+                    <TabsContent value="cold" className="m-0">
+                      <ScrollArea className="h-[500px]">
+                        {renderFileList(groupedBackups.cold)}
+                      </ScrollArea>
+                    </TabsContent>
+                    <TabsContent value="other" className="m-0">
+                      <ScrollArea className="h-[500px]">
+                        {renderFileList(groupedBackups.other)}
+                      </ScrollArea>
+                    </TabsContent>
                   </>
                 )}
               </div>
-            </ScrollArea>
+            </Tabs>
           </CardContent>
         </Card>
 
