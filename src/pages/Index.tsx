@@ -4,7 +4,6 @@ import StatCard from "@/components/StatCard";
 import DiskCard from "@/components/DiskCard";
 import BackupTab from "@/components/BackupTab";
 import SystemTab from "@/components/SystemTab";
-import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -158,29 +157,6 @@ const Index = () => {
             <SystemTab />
           </TabsContent>
         </Tabs>
-
-        {/* Footer Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xl">
-            <h3 className="text-xl font-semibold mb-2">Status Systemu</h3>
-            <p className="opacity-90 mb-4">Wszystkie usługi działają poprawnie. Dane pobierane na żywo z Twojego Raspberry Pi.</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">API: Połączono</span>
-              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Procesy: {data?.system_info?.active_processes}</span>
-              <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium">Status: OK</span>
-            </div>
-          </div>
-          <div className="p-6 rounded-2xl bg-white dark:bg-gray-900 shadow-lg border border-gray-100 dark:border-gray-800">
-            <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Informacje o sprzęcie</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex justify-between"><span>Host:</span> <span className="font-medium text-gray-900 dark:text-white">michal-pi400.local</span></li>
-              <li className="flex justify-between"><span>Model:</span> <span className="font-medium text-gray-900 dark:text-white">Raspberry Pi 400</span></li>
-              <li className="flex justify-between"><span>System:</span> <span className="font-medium text-gray-900 dark:text-white">Linux (Raspbian)</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <MadeWithDyad />
       </div>
     </div>
   );
