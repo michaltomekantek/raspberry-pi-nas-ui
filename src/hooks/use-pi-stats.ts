@@ -29,18 +29,18 @@ export interface PiStatsResponse {
   disks: PhysicalDisk[];
 }
 
-const API_URL = "http://michal-pi400.local:5000/system/stats";
-
 export const usePiStats = () => {
+  const apiUrl = localStorage.getItem("pi_nas_api_url") || "http://100.105.142.51:5000";
+  
   return useQuery<PiStatsResponse>({
-    queryKey: ['pi-stats'],
+    queryKey: ['pi-stats', apiUrl],
     queryFn: async () => {
-      const response = await fetch(API_URL);
+      const response = await fetch(`${apiUrl}/system/stats`);
       if (!response.ok) {
         throw new Error('Błąd podczas pobierania danych z serwera');
       }
       return response.json();
     },
-    refetchInterval: 30000, // Odświeżaj co 30s
+    refetchInterval: 30000,
   });
 };

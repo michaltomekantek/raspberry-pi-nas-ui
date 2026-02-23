@@ -11,13 +11,13 @@ export interface BackupLogContent {
   lines_count: number;
 }
 
-const BASE_URL = "http://michal-pi400.local:5000/backups";
-
 export const useBackups = () => {
+  const apiUrl = localStorage.getItem("pi_nas_api_url") || "http://100.105.142.51:5000";
+
   return useQuery<BackupListItem[]>({
-    queryKey: ['backups-list'],
+    queryKey: ['backups-list', apiUrl],
     queryFn: async () => {
-      const response = await fetch(`${BASE_URL}/`);
+      const response = await fetch(`${apiUrl}/backups/`);
       if (!response.ok) throw new Error('Błąd pobierania listy logów');
       return response.json();
     },
@@ -25,11 +25,13 @@ export const useBackups = () => {
 };
 
 export const useBackupDetails = (filename: string | null) => {
+  const apiUrl = localStorage.getItem("pi_nas_api_url") || "http://100.105.142.51:5000";
+
   return useQuery<BackupLogContent>({
-    queryKey: ['backup-details', filename],
+    queryKey: ['backup-details', filename, apiUrl],
     queryFn: async () => {
       if (!filename) throw new Error('Brak nazwy pliku');
-      const response = await fetch(`${BASE_URL}/${filename}`);
+      const response = await fetch(`${apiUrl}/backups/${filename}`);
       if (!response.ok) throw new Error('Błąd pobierania treści logu');
       return response.json();
     },
