@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Power, RefreshCw, ShieldCheck, Layout, Server, AlertTriangle, Globe, Link2, Save, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +16,55 @@ import {
 import { useApiConfig } from "@/hooks/use-api-config";
 import { showSuccess, showError, showLoading, dismissToast } from "@/utils/toast";
 
+const ORACLE_TRAFFIC_URL = "http://100.79.235.108:9100";
+
+type TrafficStats = {
+  month: { rx: number; tx: number };
+  interfaces: Record<string, { rx: number; tx: number }>;
+};
+
+const formatBytes = (bytes: number) => {
+  if (!Number.isFinite(bytes)) return "—";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let index = 0;
+  while (value >= 1000 && index < units.length - 1) {
+    value /= 1000;
+    index += 1;
+  }
+  return `${value < 10 && index > 1 ? value.toFixed(2) : value.toFixed(1)} ${units[index]}`;
+};
+
 const SystemTab = () => {
   const { apiUrl, updateApiUrl } = useApiConfig();
   const [tempUrl, setTempUrl] = useState(apiUrl);
+  const [traffic, setTraffic] = useState<TrafficStats | null>(null);
+  const [trafficError, setTrafficError] = useState(false);
   const [isRebootDialogOpen, setIsRebootDialogOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch(`${ORACLE_TRAFFIC_URL}/api/stats`, { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error("Traffic dashboard unavailable");
+        return response.json() as Promise<TrafficStats>;
+      })
+      .then((stats) => {
+        if (!cancelled) {
+          setTraffic(stats);
+          setTrafficError(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setTrafficError(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const endpoints = [
     { method: "GET", path: "/system/stats", desc: "Statystyki systemowe" },
@@ -131,13 +175,30 @@ const SystemTab = () => {
             <p className="text-sm text-muted-foreground">
               Dashboard pokazuje transfer VM Oracle, ruch dzienny i miesięczny oraz stan interfejsów sieciowych.
             </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/30 p-3">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Ten miesiąc</div>
+                <div className="text-lg font-bold text-indigo-700 dark:text-indigo-300">
+                  {traffic ? formatBytes(traffic.month.rx + traffic.month.tx) : trafficError ? "Niedostępny" : "…"}
+                </div>
+              </div>
+              <div className="rounded-xl bg-blue-50 dark:bg-blue-950/30 p-3">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Wysłane</div>
+                <div className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                  {traffic ? formatBytes(traffic.interfaces.enp0s6?.tx ?? 0) : trafficError ? "Niedostępny" : "…"}
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {trafficError ? "Połącz Tailscale, aby odczytać statystyki." : "Dane z Oracle odświeżane przy wejściu do zakładki."}
+            </p>
             <Button asChild variant="outline" className="w-full rounded-xl gap-2">
-              <a href="http://100.79.235.108:9100/" target="_blank" rel="noreferrer">
+              <a href={`${ORACLE_TRAFFIC_URL}/`} target="_blank" rel="noreferrer">
                 Otwórz dashboard Oracle <ExternalLink className="w-4 h-4" />
               </a>
             </Button>
             <p className="text-[11px] text-muted-foreground break-all">
-              http://100.79.235.108:9100/
+              {ORACLE_TRAFFIC_URL}/
             </p>
           </CardContent>
         </Card>
