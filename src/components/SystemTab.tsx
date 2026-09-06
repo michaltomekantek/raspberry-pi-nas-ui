@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Power, RefreshCw, ShieldCheck, Layout, Server, AlertTriangle, Globe, Link2, Save } from "lucide-react";
+import { Power, RefreshCw, ShieldCheck, Layout, Server, AlertTriangle, Globe, Link2, Save, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -115,6 +115,30 @@ const SystemTab = () => {
                 ))}
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Oracle traffic monitoring */}
+        <Card className="border-none shadow-lg bg-white/50 backdrop-blur-sm dark:bg-gray-900/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-indigo-500" />
+              Monitoring Oracle
+            </CardTitle>
+            <CardDescription>Transfer publicznego reverse proxy</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Dashboard pokazuje transfer VM Oracle, ruch dzienny i miesięczny oraz stan interfejsów sieciowych.
+            </p>
+            <Button asChild variant="outline" className="w-full rounded-xl gap-2">
+              <a href="http://100.79.235.108:9100/" target="_blank" rel="noreferrer">
+                Otwórz dashboard Oracle <ExternalLink className="w-4 h-4" />
+              </a>
+            </Button>
+            <p className="text-[11px] text-muted-foreground break-all">
+              http://100.79.235.108:9100/
+            </p>
           </CardContent>
         </Card>
 
